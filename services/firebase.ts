@@ -1,10 +1,24 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  updateProfile,
+  User 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { 
+  getFirestore, 
+  doc, 
+  getDoc, 
+  setDoc, 
+  onSnapshot 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // KONFIGURASI FIREBASE
-// Dapatkan config ini dari Firebase Console (Project Settings > General > Your Apps)
+// Pastikan Anda mengganti ini dengan konfigurasi dari Firebase Console Anda
 const firebaseConfig = {
   apiKey: "YOUR_FIREBASE_API_KEY",
   authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -17,7 +31,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const googleProvider = new GoogleAuthProvider();
 
 export type UserStatus = 'pending' | 'approved' | 'blocked';
 
@@ -30,28 +43,39 @@ export interface UserProfile {
   requestedAt: number;
 }
 
-export const loginWithGoogle = async () => {
+// Fungsi Registrasi Baru
+export const registerWithEmail = async (name: string, email: string, pass: string) => {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
+    const result = await createUserWithEmailAndPassword(auth, email, pass);
     const user = result.user;
+
+    // Update profil di Firebase Auth (untuk displayName)
+    await updateProfile(user, { displayName: name });
+
+    // Simpan ke Firestore dengan status PENDING
+    const newUser: UserProfile = {
+      uid: user.uid,
+      email: email,
+      displayName: name,
+      photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
+      status: 'pending',
+      requestedAt: Date.now()
+    };
     
-    // Cek apakah user sudah ada di database
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    
-    if (!userDoc.exists()) {
-      // Jika user baru, simpan dengan status pending
-      const newUser: UserProfile = {
-        uid: user.uid,
-        email: user.email || "",
-        displayName: user.displayName || "User",
-        photoURL: user.photoURL || "",
-        status: 'pending',
-        requestedAt: Date.now()
-      };
-      await setDoc(doc(db, "users", user.uid), newUser);
-    }
+    await setDoc(doc(db, "users", user.uid), newUser);
     return user;
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Registration Error:", error);
+    throw error;
+  }
+};
+
+// Fungsi Login
+export const loginWithEmail = async (email: string, pass: string) => {
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, pass);
+    return result.user;
+  } catch (error: any) {
     console.error("Login Error:", error);
     throw error;
   }
