@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { HealingContent, MoodConfig, FavoriteItem } from '../types';
 import AudioPlayer from './AudioPlayer';
@@ -103,15 +104,12 @@ const ContentDisplay: React.FC<ContentDisplayProps> = ({ data, onReset, onRefres
     }
   };
 
-  // Reusable Heart Icon Component
   const HeartIcon = ({ filled }: { filled: boolean }) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill={filled ? "currentColor" : "none"} viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={`w-6 h-6 transition-all duration-300 ${filled ? 'text-rose-500 scale-110' : 'text-slate-400 dark:text-slate-500 hover:text-rose-400'}`}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
     </svg>
   );
 
-  // Determine animation base delay for reflection questions
-  // If editing an existing entry, reduce delay for better UX
   const reflectionBaseDelay = savedEntry ? 0.2 : 0.8;
 
   return (
@@ -178,12 +176,12 @@ const ContentDisplay: React.FC<ContentDisplayProps> = ({ data, onReset, onRefres
           <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700 flex justify-center">
             <button
               onClick={onRefresh}
-              className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all transform active:scale-95 border ${theme.ui.buttonSecondary}`}
+              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all transform active:scale-95 border hover:shadow-md ${theme.ui.buttonSecondary}`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 animate-[spin_3s_linear_infinite]">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
               </svg>
-              Cari Ayat Lain
+              Ganti Ayat & Konteks Baru
             </button>
           </div>
         </div>
@@ -232,7 +230,7 @@ const ContentDisplay: React.FC<ContentDisplayProps> = ({ data, onReset, onRefres
       {/* --- SECTION 2: HIKMAH & PRAKTIK (SOLUSI) --- */}
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Wisdom Card - Updated: Removed conflicting bg-gradient to ensure visibility */}
+        {/* Wisdom Card */}
         <div 
           className={`opacity-0 animate-fadeInUp rounded-3xl p-8 shadow-lg border ${theme.border} ${theme.ui.pill}`}
           style={{ animationDelay: '0.4s' }}
@@ -246,7 +244,7 @@ const ContentDisplay: React.FC<ContentDisplayProps> = ({ data, onReset, onRefres
           </p>
         </div>
 
-        {/* Action/Practice Card with Staggered Children */}
+        {/* Action/Practice Card */}
         <div 
           className={`opacity-0 animate-fadeInUp bg-white dark:bg-slate-800 border ${theme.border} rounded-3xl p-8 shadow-lg`}
           style={{ animationDelay: '0.5s' }}
@@ -272,20 +270,18 @@ const ContentDisplay: React.FC<ContentDisplayProps> = ({ data, onReset, onRefres
         </div>
       </div>
 
-      {/* --- SECTION 3: RUANG REFLEKSI (INTERAKTIF) --- */}
+      {/* --- SECTION 3: RUANG REFLEKSI --- */}
       
       <div 
         className="opacity-0 animate-fadeInUp bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-700 p-8 md:p-10 relative overflow-hidden"
-        style={{ animationDelay: '0.8s' }} // Delayed to appear after steps
+        style={{ animationDelay: '0.8s' }}
       >
-        {/* Decorative background element */}
         <div className={`absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 rounded-full blur-3xl opacity-30 ${theme.ui.iconBg}`}></div>
 
         <div className="relative z-10">
           <h3 className="text-2xl font-serif font-bold text-slate-800 dark:text-slate-100 mb-2">Ruang Refleksi Diri</h3>
-          <p className="text-slate-500 dark:text-slate-400 mb-8">Curahkan perasaanmu, Allah Maha Mendengar segala isi hati.</p>
+          <p className="text-slate-500 dark:text-slate-400 mb-8">Curahkan perasaanmu berdasarkan renungan ayat di atas.</p>
 
-          {/* Success Banner */}
           {showSuccess && (
             <div className={`mb-6 p-4 rounded-xl flex items-center gap-3 animate-scaleIn bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800`}>
               <div className="bg-green-100 dark:bg-green-800/40 p-1.5 rounded-full">
@@ -293,12 +289,11 @@ const ContentDisplay: React.FC<ContentDisplayProps> = ({ data, onReset, onRefres
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
               </div>
-              <span className="font-medium text-sm">Alhamdulillah, catatan hatimu telah tersimpan dengan aman.</span>
+              <span className="font-medium text-sm">Alhamdulillah, catatan hatimu telah tersimpan.</span>
             </div>
           )}
 
           {isEditing ? (
-            /* --- EDIT MODE --- */
             <div className="space-y-6 animate-fadeIn">
               <div className="bg-slate-50 dark:bg-slate-700/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-600">
                 <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider">Pertanyaan Renungan:</p>
@@ -319,7 +314,7 @@ const ContentDisplay: React.FC<ContentDisplayProps> = ({ data, onReset, onRefres
                 <textarea
                   value={journalEntry}
                   onChange={(e) => setJournalEntry(e.target.value)}
-                  placeholder="Tuliskan apa yang kamu rasakan, akui kelemahanmu, dan mintalah kekuatan..."
+                  placeholder="Apa pelajaran yang bisa kamu ambil dari ayat ini untuk kondisimu sekarang?"
                   className={`w-full h-40 p-4 rounded-xl border border-slate-300 dark:border-slate-600 focus:ring-2 transition-all resize-none bg-slate-50 dark:bg-slate-900 focus:bg-white dark:focus:bg-slate-800 text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none ${theme.border.replace('border-', 'focus:border-').replace('200', '500')} ${theme.ui.iconBg.replace('bg-', 'focus:ring-').replace('100', '200')}`}
                 ></textarea>
               </div>
@@ -348,35 +343,22 @@ const ContentDisplay: React.FC<ContentDisplayProps> = ({ data, onReset, onRefres
               </div>
             </div>
           ) : (
-            /* --- VIEW MODE --- */
             <div className="animate-scaleIn">
               <div className={`bg-amber-50/50 dark:bg-slate-900 p-6 rounded-2xl border ${theme.border} relative shadow-sm`}>
-                 {/* Quote decorative mark */}
                  <div className="absolute top-4 left-4 text-6xl opacity-10 font-serif leading-none">"</div>
-                 
                  <div className="relative z-10 px-4 pt-2 pb-4">
                    <p className="text-slate-700 dark:text-slate-300 text-lg font-serif italic whitespace-pre-line leading-relaxed">
                      {savedEntry}
                    </p>
                  </div>
-                 
                  <div className="absolute bottom-4 right-4 flex gap-2">
                    <button 
                      onClick={handleEdit}
                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-500 shadow-sm`}
                    >
-                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3.5 h-3.5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
-                      </svg>
                      Edit
                    </button>
                  </div>
-              </div>
-              
-              <div className="mt-6 text-center">
-                 <p className="text-slate-500 dark:text-slate-400 text-sm">
-                   Ingatlah, "Hanya dengan mengingat Allah hati menjadi tenteram."
-                 </p>
               </div>
             </div>
           )}
@@ -386,7 +368,7 @@ const ContentDisplay: React.FC<ContentDisplayProps> = ({ data, onReset, onRefres
       {/* Back Button */}
       <div 
         className="opacity-0 animate-fadeInUp flex justify-center pt-8"
-        style={{ animationDelay: '0.9s' }} // Delayed to appear last
+        style={{ animationDelay: '0.9s' }}
       >
         <button
           onClick={onReset}

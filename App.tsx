@@ -80,6 +80,12 @@ const App: React.FC = () => {
     localStorage.setItem('theme', newMode ? 'dark' : 'light');
   };
 
+  const handleReset = () => {
+    setContent(null);
+    setSelectedMood(null);
+    setError(null);
+  };
+
   const currentConfig = selectedMood ? getMoodConfig(selectedMood) : null;
   const themeClass = currentConfig ? currentConfig.theme.background : 'bg-gradient-to-br from-emerald-50 via-teal-50 to-slate-50 dark:from-slate-900 dark:via-emerald-950 dark:to-teal-950';
   const textClass = currentConfig ? currentConfig.theme.primaryText : 'text-emerald-950 dark:text-emerald-50';
@@ -151,54 +157,116 @@ const App: React.FC = () => {
                 </div>
              </div>
 
+             {/* Centered Mood Icon - Clickable to go Home */}
+             <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center transition-all duration-700">
+               {selectedMood ? (
+                  <button 
+                    onClick={handleReset}
+                    className={`
+                      relative group p-3 rounded-2xl transition-all duration-500 hover:scale-110 active:scale-95 shadow-lg border-2
+                      ${accentButtonClass}
+                    `}
+                    title="Kembali ke menu utama"
+                  >
+                    <div className="absolute -inset-1 bg-white/20 blur opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity"></div>
+                    <span className="text-2xl md:text-3xl relative z-10">{currentConfig?.icon}</span>
+                    <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Home</span>
+                  </button>
+               ) : (
+                  <div className="p-3 bg-white/30 dark:bg-slate-800/30 backdrop-blur-md rounded-2xl border border-white/20 dark:border-slate-700/50 shadow-sm">
+                    <span className="text-2xl md:text-3xl">🕌</span>
+                  </div>
+               )}
+             </div>
+
              <div className="flex gap-2">
                 <button onClick={toggleTheme} className={`p-2 backdrop-blur-sm border rounded-full transition-all shadow-sm ${accentButtonClass}`}>
                   {darkMode ? "☀️" : "🌙"}
                 </button>
                 <button onClick={() => setShowDashboard(true)} className={`hidden md:flex items-center gap-2 px-4 py-2 backdrop-blur-sm border rounded-full text-sm font-medium transition-all shadow-sm group ${accentButtonClass}`}>
-                  Jurnal
+                  <span className="group-hover:scale-110 transition-transform">📊</span>
+                  Dashboard
                 </button>
-                <button onClick={() => logout()} className="p-2 backdrop-blur-sm border rounded-full transition-all shadow-sm bg-red-50 text-red-600 border-red-100 hover:bg-red-100 dark:bg-red-900/20 dark:border-red-900/50">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+                <button onClick={() => logout()} className={`p-2 backdrop-blur-sm border border-red-100/30 text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-all shadow-sm`}>
+                  🚪
                 </button>
              </div>
           </div>
 
-          <header className="text-center mb-12 space-y-4 w-full">
-            <div className="inline-flex items-center justify-center p-3 rounded-full mb-4 shadow-sm bg-white/50 dark:bg-slate-800/50 backdrop-blur-md">
-               <span className="text-3xl">🕌</span>
+          {!content && !loading && !error && (
+            <div className="text-center mb-10 md:mb-16 animate-fadeInUp">
+              <h2 className={`text-3xl md:text-5xl font-serif font-bold mb-4 tracking-tight ${textClass}`}>
+                Apa yang sedang Anda rasakan?
+              </h2>
+              <p className={`text-lg max-w-lg mx-auto ${secondaryTextClass}`}>
+                Pilihlah suasana hati Anda saat ini, biarkan Al-Quran menyentuh hati dan memberikan ketenangan.
+              </p>
             </div>
-            <h1 className={`text-4xl md:text-5xl font-bold font-serif tracking-tight ${textClass}`}>Qur'an Mood</h1>
-            <p className={`text-lg max-w-md mx-auto ${secondaryTextClass}`}>Sapaan batin dari Al-Quran sesuai suasana hatimu.</p>
-          </header>
-
-          {loading && (
-             <div className="flex flex-col items-center py-20 animate-fadeIn">
-                <div className="animate-bounce text-5xl mb-6">{currentConfig?.icon || '🤲'}</div>
-                <h3 className={`text-xl font-medium text-center max-w-sm ${textClass}`}>{loadingMessage}</h3>
-             </div>
           )}
 
-          {error && <div className="text-red-500 bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl border border-red-100 dark:border-red-900/30">{error}</div>}
+          {loading && (
+            <div className="flex-1 flex flex-col items-center justify-center py-20 animate-scaleIn">
+              <div className="relative mb-8">
+                <div className={`w-24 h-24 border-8 border-t-transparent rounded-full animate-spin ${currentConfig ? currentConfig.theme.accent.replace('text-', 'border-') : 'border-emerald-500'}`}></div>
+                <div className="absolute inset-0 flex items-center justify-center text-4xl">
+                  {selectedMood ? getMoodConfig(selectedMood)?.icon : "🤲"}
+                </div>
+              </div>
+              <p className={`text-xl font-serif font-bold text-center animate-pulse px-4 ${textClass}`}>
+                {loadingMessage}
+              </p>
+              <p className="text-sm text-slate-400 mt-4 tracking-widest uppercase">Sedang Menghubungkan Qalbu...</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-8 rounded-3xl border border-red-100 dark:border-red-900/30 shadow-xl max-w-md text-center animate-scaleIn">
+              <div className="text-5xl mb-4">😔</div>
+              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Maaf, terjadi kendala</h3>
+              <p className="text-slate-600 dark:text-slate-400 mb-6">{error}</p>
+              <button 
+                onClick={() => selectedMood && fetchContent(selectedMood)}
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-all shadow-lg"
+              >
+                Coba Lagi
+              </button>
+              <button 
+                onClick={handleReset}
+                className="w-full mt-3 py-3 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+              >
+                Kembali ke Menu Utama
+              </button>
+            </div>
+          )}
 
           {!content && !loading && !error && (
-            <div className="w-full flex flex-col items-center">
-              <h2 className={`text-xl font-medium mb-8 text-center ${secondaryTextClass}`}>
-                Bagaimana perasaanmu hari ini, {userProfile ? getFirstName(userProfile.displayName) : 'saudaraku'}?
-              </h2>
-              <MoodSelector onSelect={handleMoodSelect} disabled={loading} selectedMood={selectedMood} />
-            </div>
+            <MoodSelector onSelect={handleMoodSelect} disabled={loading} selectedMood={selectedMood} />
           )}
 
           {content && !loading && currentConfig && (
-            <ContentDisplay data={content} onReset={() => setContent(null)} onRefresh={() => fetchContent(selectedMood!)} logId={currentLogId} config={currentConfig} />
+            <ContentDisplay 
+              data={content} 
+              onReset={handleReset} 
+              onRefresh={() => fetchContent(selectedMood as MoodType)}
+              logId={currentLogId}
+              config={currentConfig}
+            />
           )}
 
-          <footer className={`mt-auto pt-16 text-center text-[10px] uppercase tracking-widest ${secondaryTextClass} opacity-60`}>
-             <p>&copy; {new Date().getFullYear()} Qur'an Mood</p>
+          <footer className="mt-auto pt-20 pb-10 text-center opacity-50 text-xs tracking-widest uppercase pointer-events-none">
+            <p>&copy; {new Date().getFullYear()} Qur'an Mood • Tenangkan Jiwa dengan Iman</p>
           </footer>
         </main>
+
         <Dashboard isOpen={showDashboard} onClose={() => setShowDashboard(false)} />
+        
+        {/* Floating Mobile Dashboard Button */}
+        <button 
+          onClick={() => setShowDashboard(true)} 
+          className="md:hidden fixed bottom-6 right-6 w-14 h-14 bg-emerald-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl z-40 active:scale-90 transition-transform"
+        >
+          📊
+        </button>
       </div>
     </AccessControl>
   );

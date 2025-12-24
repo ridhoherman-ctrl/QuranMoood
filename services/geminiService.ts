@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { HealingContent, MoodType } from "../types";
 
@@ -9,36 +10,43 @@ export const generateHealingContent = async (mood: MoodType): Promise<HealingCon
 
   const ai = new GoogleGenAI({ apiKey });
 
-  // Timestamp injection to ensure uniqueness
-  const uniqueSeed = Date.now();
+  // Membuat seed unik untuk variasi maksimal
+  const uniqueSeed = Math.floor(Math.random() * 1000000);
+  const timestamp = new Date().toISOString();
 
-  // Optimized System Instruction: Define persona and general rules here
+  // Instruksi sistem yang lebih mendalam untuk korelasi konten
   const systemInstruction = `
-    Anda adalah sahabat bijaksana, psikolog Islami, dan ustadz yang menenangkan.
-    Gaya bicara: Hangat, empatik, menyentuh hati, namun ringkas dan padat (to-the-point).
-    Jangan bertele-tele. Fokus pada kualitas penyembuhan hati.
+    Anda adalah seorang Ahli Tafsir Al-Quran, Pakar Hadits, dan Psikolog Spiritual Islami yang sangat bijaksana.
+    
+    PRINSIP KERJA:
+    1. VARIASI TINGGI: Untuk mood "${mood}", terdapat setidaknya 20 ayat berbeda yang relevan dalam Al-Quran. Pilih SATU secara acak yang unik. Hindari hanya memilih ayat yang paling populer (seperti Al-Baqarah 286 atau Ash-Sharh). Gunakan keberagaman surah.
+    2. KORELASI TERKUNCI (CONTEXT LOCK): Setelah memilih ayat, seluruh konten lainnya (Hadist, Hikmah, Amalan, Refleksi) HARUS merujuk langsung pada pesan spesifik dari ayat tersebut.
+    3. Jika ayat berbicara tentang "Sabar dalam ujian", maka Hadist dan Amalan harus tentang "Sabar". Jika ayat tentang "Harapan/Optimisme", maka Hadist harus tentang "Raja' (berharap)".
+    4. Bahasa: Hangat, puitis namun tetap berlandaskan dalil yang shahih.
   `;
 
-  // Optimized Prompt: Focus on specific data requirements only
   const prompt = `
-    Konteks: Pengguna sedang merasa "${mood}".
-    
-    TUGAS:
-    1. Pilih 1 Ayat Al-Quran (Random/Acak) yang relevan.
-    2. Pilih 1 Hadist pendukung.
-    3. Wisdom: Hikmah singkat (maksimal 2 kalimat) yang mengena.
-    4. Practical Steps: 3 langkah aksi nyata yang singkat.
-    5. Reflection Questions: 2 pertanyaan renungan pendek.
-    
-    Seed: ${uniqueSeed}
+    Mood Pengguna Saat Ini: "${mood}"
+    Random Seed: ${uniqueSeed}
+    Current Time: ${timestamp}
+
+    TUGAS ANDA:
+    1. Identifikasi 20 ayat Al-Quran yang paling relevan dengan mood "${mood}".
+    2. Secara acak, pilih satu dari 20 ayat tersebut.
+    3. Cari Hadist yang memiliki benang merah makna yang sama dengan ayat terpilih tersebut.
+    4. Susun sapaan (summary) yang empatik.
+    5. Tuliskan Hikmah yang membedah korelasi antara ayat dan hadist tersebut.
+    6. Berikan 3 Langkah Praktis dan 2 Pertanyaan Refleksi yang bersumber dari pelajaran ayat tersebut.
   `;
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-pro-preview",
       contents: prompt,
       config: {
         systemInstruction: systemInstruction,
+        temperature: 1.0, // Meningkatkan kreativitas dan variasi
+        topP: 0.95,
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -53,7 +61,7 @@ export const generateHealingContent = async (mood: MoodType): Promise<HealingCon
                 ayahNumber: { type: Type.INTEGER },
                 arabicText: { type: Type.STRING },
                 translation: { type: Type.STRING },
-                reflection: { type: Type.STRING, description: "Konteks ayat (maks 15 kata)." },
+                reflection: { type: Type.STRING, description: "Analisis singkat ayat (maks 15 kata)." },
               },
               required: ["surahName", "surahNumber", "ayahNumber", "arabicText", "translation", "reflection"]
             },
@@ -62,20 +70,20 @@ export const generateHealingContent = async (mood: MoodType): Promise<HealingCon
               properties: {
                 source: { type: Type.STRING },
                 text: { type: Type.STRING },
-                reflection: { type: Type.STRING, description: "Konteks hadist (maks 15 kata)." },
+                reflection: { type: Type.STRING, description: "Analisis singkat hadist (maks 15 kata)." },
               },
               required: ["source", "text", "reflection"]
             },
-            wisdom: { type: Type.STRING, description: "Hikmah mendalam (maks 25 kata)." },
+            wisdom: { type: Type.STRING, description: "Hikmah mendalam penggabungan ayat & hadist (maks 30 kata)." },
             practicalSteps: { 
               type: Type.ARRAY, 
               items: { type: Type.STRING },
-              description: "3 langkah praktis singkat"
+              description: "3 langkah praktis spesifik berdasarkan ayat"
             },
             reflectionQuestions: {
               type: Type.ARRAY,
               items: { type: Type.STRING },
-              description: "2 pertanyaan renungan singkat"
+              description: "2 pertanyaan renungan spesifik berdasarkan ayat"
             }
           },
           required: ["mood", "summary", "quran", "hadith", "wisdom", "practicalSteps", "reflectionQuestions"]
@@ -92,7 +100,7 @@ export const generateHealingContent = async (mood: MoodType): Promise<HealingCon
 
   } catch (error) {
     console.error("Error generating content:", error);
-    throw new Error("Maaf, kami mengalami kendala saat mencari penawar hatimu. Silakan coba lagi.");
+    throw new Error("Maaf, kami sedang mencari ayat yang tepat untukmu. Silakan tekan tombol 'Coba Lagi'.");
   }
 };
 
@@ -122,6 +130,6 @@ export const generateSpeech = async (text: string): Promise<string> => {
     return base64Audio;
   } catch (error) {
     console.error("Error generating speech:", error);
-    throw new Error("Gagal menghasilkan suara. Silakan coba lagi nanti.");
+    throw new Error("Gagal menghasilkan suara.");
   }
 };
