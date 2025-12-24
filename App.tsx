@@ -35,7 +35,7 @@ const App: React.FC = () => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        // Subscribe to real-time updates of user profile (for instant approval)
+        // Subscribe to real-time updates of user profile
         const unsubscribeProfile = onSnapshot(doc(db, "users", currentUser.uid), (doc) => {
           if (doc.exists()) {
             setUserProfile(doc.data() as UserProfile);
@@ -122,7 +122,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center">
         <div className="w-16 h-16 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
-        <p className="text-emerald-600 dark:text-emerald-400 font-medium animate-pulse">Menghubungkan ke Qalbu...</p>
+        <p className="text-emerald-600 dark:text-emerald-400 font-medium animate-pulse text-sm">Menghubungkan ke Qalbu...</p>
       </div>
     );
   }
@@ -137,17 +137,18 @@ const App: React.FC = () => {
         <div className="absolute inset-0 opacity-40 dark:opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] dark:invert"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/60 dark:to-slate-900/60 pointer-events-none"></div>
 
-        <main className="relative z-10 max-w-5xl mx-auto px-4 py-10 md:py-16 min-h-screen flex flex-col items-center animate-[fadeIn_1s_ease-out]">
+        <main className="relative z-10 max-w-5xl mx-auto px-4 py-8 md:py-12 min-h-screen flex flex-col items-center animate-[fadeIn_1s_ease-out]">
           
-          <div className="w-full flex justify-between items-center mb-8 px-2 md:px-4">
+          <div className="w-full flex justify-between items-center mb-10 px-2 md:px-4">
+             {/* User Section */}
              <div className="flex items-center gap-3">
                 <div className="relative">
                   <img 
-                    src={userProfile?.photoURL || "https://ui-avatars.com/api/?name=" + (userProfile?.displayName || "User")} 
+                    src={userProfile?.photoURL || `https://ui-avatars.com/api/?name=${userProfile?.displayName}`} 
                     alt="Profile" 
                     className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-800 shadow-sm object-cover"
                   />
-                  <div className="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-white dark:border-slate-800"></div>
+                  <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 w-3 h-3 rounded-full border-2 border-white dark:border-slate-800"></div>
                 </div>
                 <div className="flex flex-col">
                   <span className={`text-[10px] font-bold uppercase tracking-widest opacity-60 ${secondaryTextClass}`}>Assalamualaikum,</span>
@@ -157,37 +158,48 @@ const App: React.FC = () => {
                 </div>
              </div>
 
-             {/* Centered Mood Icon - Clickable to go Home */}
-             <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center transition-all duration-700">
+             {/* Functional Header Center Icon */}
+             <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center group">
                {selectedMood ? (
-                  <button 
-                    onClick={handleReset}
-                    className={`
-                      relative group p-3 rounded-2xl transition-all duration-500 hover:scale-110 active:scale-95 shadow-lg border-2
-                      ${accentButtonClass}
-                    `}
-                    title="Kembali ke menu utama"
-                  >
-                    <div className="absolute -inset-1 bg-white/20 blur opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity"></div>
-                    <span className="text-2xl md:text-3xl relative z-10">{currentConfig?.icon}</span>
-                    <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Home</span>
-                  </button>
+                 <button 
+                  onClick={handleReset}
+                  className={`
+                    relative flex flex-col items-center gap-1 p-3 rounded-2xl transition-all duration-500 
+                    hover:scale-110 active:scale-95 shadow-lg border-2
+                    ${accentButtonClass}
+                  `}
+                 >
+                   <span className="text-2xl md:text-3xl relative z-10 animate-[bounce_3s_infinite]">{currentConfig?.icon}</span>
+                   <span className="text-[9px] font-bold uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity absolute -bottom-5 whitespace-nowrap">Beranda</span>
+                 </button>
                ) : (
-                  <div className="p-3 bg-white/30 dark:bg-slate-800/30 backdrop-blur-md rounded-2xl border border-white/20 dark:border-slate-700/50 shadow-sm">
-                    <span className="text-2xl md:text-3xl">🕌</span>
-                  </div>
+                 <div className="p-3 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md rounded-2xl border border-white/40 dark:border-slate-700/50 shadow-sm">
+                   <span className="text-2xl md:text-3xl">🕌</span>
+                 </div>
                )}
              </div>
 
+             {/* Right Controls */}
              <div className="flex gap-2">
-                <button onClick={toggleTheme} className={`p-2 backdrop-blur-sm border rounded-full transition-all shadow-sm ${accentButtonClass}`}>
+                <button 
+                  onClick={toggleTheme} 
+                  title="Ganti Tema"
+                  className={`p-2.5 backdrop-blur-sm border rounded-full transition-all shadow-sm ${accentButtonClass}`}
+                >
                   {darkMode ? "☀️" : "🌙"}
                 </button>
-                <button onClick={() => setShowDashboard(true)} className={`hidden md:flex items-center gap-2 px-4 py-2 backdrop-blur-sm border rounded-full text-sm font-medium transition-all shadow-sm group ${accentButtonClass}`}>
-                  <span className="group-hover:scale-110 transition-transform">📊</span>
-                  Dashboard
+                <button 
+                  onClick={() => setShowDashboard(true)} 
+                  className={`hidden sm:flex items-center gap-2 px-4 py-2.5 backdrop-blur-sm border rounded-full text-sm font-bold transition-all shadow-sm group ${accentButtonClass}`}
+                >
+                  <span className="group-hover:rotate-12 transition-transform">📊</span>
+                  <span className="hidden md:inline">Jurnal</span>
                 </button>
-                <button onClick={() => logout()} className={`p-2 backdrop-blur-sm border border-red-100/30 text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-all shadow-sm`}>
+                <button 
+                  onClick={() => logout()} 
+                  title="Keluar"
+                  className={`p-2.5 backdrop-blur-sm border border-red-100/30 text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-all shadow-sm`}
+                >
                   🚪
                 </button>
              </div>
@@ -198,7 +210,7 @@ const App: React.FC = () => {
               <h2 className={`text-3xl md:text-5xl font-serif font-bold mb-4 tracking-tight ${textClass}`}>
                 Apa yang sedang Anda rasakan?
               </h2>
-              <p className={`text-lg max-w-lg mx-auto ${secondaryTextClass}`}>
+              <p className={`text-lg max-w-lg mx-auto opacity-80 ${secondaryTextClass}`}>
                 Pilihlah suasana hati Anda saat ini, biarkan Al-Quran menyentuh hati dan memberikan ketenangan.
               </p>
             </div>
@@ -215,7 +227,7 @@ const App: React.FC = () => {
               <p className={`text-xl font-serif font-bold text-center animate-pulse px-4 ${textClass}`}>
                 {loadingMessage}
               </p>
-              <p className="text-sm text-slate-400 mt-4 tracking-widest uppercase">Sedang Menghubungkan Qalbu...</p>
+              <p className="text-xs text-slate-400 mt-4 tracking-widest uppercase font-bold">Sedang Menghubungkan Qalbu...</p>
             </div>
           )}
 
@@ -223,16 +235,16 @@ const App: React.FC = () => {
             <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-8 rounded-3xl border border-red-100 dark:border-red-900/30 shadow-xl max-w-md text-center animate-scaleIn">
               <div className="text-5xl mb-4">😔</div>
               <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Maaf, terjadi kendala</h3>
-              <p className="text-slate-600 dark:text-slate-400 mb-6">{error}</p>
+              <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm">{error}</p>
               <button 
                 onClick={() => selectedMood && fetchContent(selectedMood)}
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-all shadow-lg"
+                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold transition-all shadow-lg active:scale-95"
               >
                 Coba Lagi
               </button>
               <button 
                 onClick={handleReset}
-                className="w-full mt-3 py-3 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+                className="w-full mt-4 py-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-sm font-medium"
               >
                 Kembali ke Menu Utama
               </button>
@@ -253,8 +265,8 @@ const App: React.FC = () => {
             />
           )}
 
-          <footer className="mt-auto pt-20 pb-10 text-center opacity-50 text-xs tracking-widest uppercase pointer-events-none">
-            <p>&copy; {new Date().getFullYear()} Qur'an Mood • Tenangkan Jiwa dengan Iman</p>
+          <footer className="mt-auto pt-20 pb-10 text-center opacity-40 text-[10px] tracking-[0.3em] uppercase pointer-events-none font-bold">
+            <p>&copy; {new Date().getFullYear()} Qur'an Mood • Kedamaian dalam Iman</p>
           </footer>
         </main>
 
@@ -263,7 +275,7 @@ const App: React.FC = () => {
         {/* Floating Mobile Dashboard Button */}
         <button 
           onClick={() => setShowDashboard(true)} 
-          className="md:hidden fixed bottom-6 right-6 w-14 h-14 bg-emerald-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl z-40 active:scale-90 transition-transform"
+          className="sm:hidden fixed bottom-6 right-6 w-14 h-14 bg-emerald-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl z-40 active:scale-90 transition-transform ring-4 ring-white dark:ring-slate-800"
         >
           📊
         </button>
